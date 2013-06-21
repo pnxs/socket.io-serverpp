@@ -1,4 +1,6 @@
 socket.io-serverpp
 ==================
 
-C++ server implementation for socket.io clients
+A C++ server implementation for socket.io clients based on [websocket++](https://github.com/zaphoyd/websocketpp).
+
+At the moment the library is in heavy development, so it may not usable now.
