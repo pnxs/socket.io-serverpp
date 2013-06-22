@@ -6,6 +6,7 @@ namespace lib
 {
 
 #ifdef _SOCKETIO-SERVERPP_CPP11_STL_
+#include <functional>
 
 using std::function;
 using std::bind;

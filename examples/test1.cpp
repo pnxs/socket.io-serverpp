@@ -1,17 +1,21 @@
-#include <socketio-serverpp/server.hpp>
+#include <iostream>
 
-/* This example only a draft of the interface that
- * should be implemented.
- */
+#define _SOCKETIO-SERVERPP_CPP11_STL_ 1
+
+#include <socket.io-serverpp/Server.hpp>
 
 int main()
 {
-    socketio-serverpp::server io;
+    boost::asio::io_service io_service;
 
-    io.listen(9000);
+    socketio_serverpp::Server io(io_service);
+    
+    unlink("/tmp/dorascgi");
+    io.listen("/tmp/dorascgi", 9001);
 
     //io.sockets.on("connection", [](socketio-serverpp::socket socket)
-    io.sockets.on(socketio-serverpp::event::connection, [](socketio-serverpp::socket socket)
+#if 0
+    io.sockets().on("connection", [](socketio-serverpp::socket socket)
     {
         socket.emit('my event', 'some data');
         socket.on('other event', [](const string& data)
@@ -26,6 +30,7 @@ int main()
         socket.emit("a message", "only socket will get");
         chat.emit("a message", "all in /chat will get");
     });
+#endif
 
-    io.run();
+    io_service.run();
 }
