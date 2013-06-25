@@ -4,6 +4,8 @@
 
 #include <socket.io-serverpp/Server.hpp>
 
+using namespace std;
+
 int main()
 {
     boost::asio::io_service io_service;
@@ -23,14 +25,16 @@ int main()
             cout << data << endl;
         });
     });
+#endif
 
     auto chat = io.of("/chat");
-    chat.on("connection", [&](socketio-serverpp::socket socket)
+    chat->onConnection([&](socketio_serverpp::Socket socket)
     {
+        cout << "a socket with namespace /chat connected" << endl;
+
         socket.emit("a message", "only socket will get");
-        chat.emit("a message", "all in /chat will get");
+        chat->emit("a message", "all in /chat will get");
     });
-#endif
 
     io_service.run();
 }
