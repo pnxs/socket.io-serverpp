@@ -1,6 +1,6 @@
 #include <iostream>
 
-#define _SOCKETIO-SERVERPP_CPP11_STL_ 1
+#define _SOCKETIO_SERVERPP_CPP11_STL_ 1
 
 #include <socket.io-serverpp/Server.hpp>
 

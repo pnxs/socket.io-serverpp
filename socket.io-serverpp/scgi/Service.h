@@ -24,6 +24,8 @@ class Service
         using CRequest = Request<typename PROTOCOL::socket>;
         using CRequestPtr = shared_ptr<CRequest>;
 
+        typedef PROTOCOL proto;
+
         void listen(shared_ptr<typename PROTOCOL::acceptor> acceptor)
         {
             m_acceptor = acceptor;

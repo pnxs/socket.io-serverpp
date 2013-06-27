@@ -19,6 +19,7 @@ using std::queue;
 using A::ip::tcp;
 using std::map;
 using boost::system::error_code;
+using std::function;
 
 template <class SOCKET>
 class Request

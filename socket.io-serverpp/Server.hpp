@@ -3,52 +3,32 @@
 #include <socket.io-serverpp/config.hpp>
 #include <socket.io-serverpp/scgi/Service.h>
 #include <socket.io-serverpp/Message.hpp>
-
 #include <socket.io-serverpp/SocketNamespace.hpp>
+#include <socket.io-serverpp/uuid.hpp>
 
-#define _WEBSOCKETPP_CPP11_STL_
-#include <websocketpp/config/asio_no_tls.hpp>
-#include <websocketpp/server.hpp>
+#include <sstream>
 
 #include <boost/regex.hpp>
 
-#include <uuid/uuid.h>
-
-#include <iostream>
-
 namespace SOCKETIO_SERVERPP_NAMESPACE
+{
+namespace lib
 {
 
 class SocketNamespace;
 
-//typedef websocketpp::server<websocketpp::config::asio> wsserver;
-typedef scgi::Service<boost::asio::local::stream_protocol> scgiserver;
-
-using std::cout;
-using std::endl;
-
-namespace uuid
-{
-    string uuid1()
-    {
-        uuid_t uuid;
-        char strId[38];
-        uuid_generate_time(uuid);
-        uuid_unparse(uuid, strId);
-        strId[37] = 0;
-        return strId;
-    }
-}
-
+typedef scgi::Service<asio::local::stream_protocol> scgiserver;
 
 class Server
 {
     public:
-    Server(boost::asio::io_service& io_service)
+    Server(asio::io_service& io_service)
     :m_io_service(io_service)
     ,m_reSockIoMsg("^(\\d):([\\d+]*):([^:]*):?(.*)", boost::regex::perl)
     {
         m_sockets = this->of("");
+
+        m_protocols = {"websocket"};
 
         m_wsserver.init_asio(&io_service);
         m_wsserver.set_message_handler(bind(&Server::onWebsocketMessage, this, _1, _2));
@@ -60,7 +40,7 @@ class Server
 
     void listen(const string& scgi_socket, int websocket_port)
     {
-        auto acceptor = std::make_shared<boost::asio::local::stream_protocol::acceptor>(m_io_service, boost::asio::local::stream_protocol::endpoint(scgi_socket));
+        auto acceptor = std::make_shared<scgiserver::proto::acceptor>(m_io_service, scgiserver::proto::endpoint(scgi_socket));
         m_scgiserver.listen(acceptor);
         m_scgiserver.start_accept();
 
@@ -88,8 +68,6 @@ class Server
         return m_sockets;
     }
 
-    //boost::signals2<void(shared_ptr<SocketIoConnection>)> sig_onConnection;
-
     private:
     void onScgiRequest(scgiserver::CRequestPtr req)
     {
@@ -99,27 +77,30 @@ class Server
 
         if (uri.find("/socket.io/1/") == 0)
         {
-            string data = "Status: 200 OK\r\nContent-Type: text/plain\r\n\r\n" + uuid + ":20:30:websocket";
-            req->writeData(data);
+            std::ostringstream os;
+            os << "Status: 200 OK\r\n";
+            os << "Content-Type: text/plain\r\n\r\n";
+            os << uuid + ":" << m_heartBeat << ":" << m_reconnectTime << ":";
+            for (const auto& p : m_protocols)
+            {
+                os << p << ",";
+            }
+
+            req->writeData(os.str());
             req->asyncClose(std::bind([](scgiserver::CRequestPtr req){ cout << "closed" << endl;}, req));
         }
     }
 
     
-    void onWebsocketOpen(websocketpp::connection_hdl hdl)
+    void onWebsocketOpen(wspp::connection_hdl hdl)
     {
         auto connection = m_wsserver.get_con_from_hdl(hdl);
         string uuid = connection->get_resource().substr(23);
 
-        //auto connection = make_shared<SocketIoConnection>(uuid);
-        //m_connections[hdl] = connection;
-
         //m_websocketServer.send(hdl, "5::{name:'connect', args={}}", ws::frame::opcode::value::text);
-        m_wsserver.send(hdl, "1::", websocketpp::frame::opcode::value::text);
+        m_wsserver.send(hdl, "1::", wspp::frame::opcode::value::text);
         //    m_websocketServer.set_timer(10*1000, bind(&SocketIoServer::sendHeartbeart, this, hdl));
         //    m_websocketServer.set_timer(1*1000, bind(&SocketIoServer::customEvent, this, hdl));
-
-        //sig_onConnection(connection);
     }
 
     /*
@@ -144,7 +125,7 @@ class Server
      * regex: "\d:\d*\+*:[^:]*:.*"
      */
 
-    void onWebsocketMessage(websocketpp::connection_hdl hdl, wsserver::message_ptr msg)
+    void onWebsocketMessage(wspp::connection_hdl hdl, wsserver::message_ptr msg)
     {
         string payload = msg->get_payload();
         if (payload.size() < 3)
@@ -176,7 +157,7 @@ class Server
                             socket_namespace->second->onSocketIoConnection(hdl);
                         }
 
-                        m_wsserver.send(hdl, payload, websocketpp::frame::opcode::value::text);
+                        m_wsserver.send(hdl, payload, wspp::frame::opcode::value::text);
                     }
                     break;
                 case '4': // JsonMessage
@@ -191,6 +172,8 @@ class Server
 
                             std::cout << "Message: " << payload << std::endl;
                         }
+                case '5': // Event
+                        
                     break;
             }
         }
@@ -198,17 +181,22 @@ class Server
         std::cout << msg->get_payload() << std::endl;
     }
 
-    void onWebsocketClose(websocketpp::connection_hdl hdl)
+    void onWebsocketClose(wspp::connection_hdl hdl)
     {
     }
 
-    boost::asio::io_service& m_io_service;
+    asio::io_service& m_io_service;
     wsserver m_wsserver;
     scgiserver m_scgiserver;
     shared_ptr<SocketNamespace> m_sockets;
     map<string, shared_ptr<SocketNamespace>> m_socket_namespace;
     boost::regex m_reSockIoMsg;
+    int m_heartBeat;
+    int m_reconnectTime;
+    vector<string> m_protocols;
 };
 
 }
 
+    using lib::Server;
+}

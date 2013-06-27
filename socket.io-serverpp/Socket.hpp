@@ -1,22 +1,14 @@
 #pragma once
 
-#define _WEBSOCKETPP_CPP11_STL_
-#include <websocketpp/config/asio_no_tls.hpp>
-#include <websocketpp/server.hpp>
-
 #include <socket.io-serverpp/config.hpp>
 #include <socket.io-serverpp/Message.hpp>
-#include <boost/signals2.hpp>
 
 namespace SOCKETIO_SERVERPP_NAMESPACE
 {
-
-    using std::cout;
-    using std::endl;
+namespace lib
+{
 
 class SocketNamespace;
-
-typedef websocketpp::server<websocketpp::config::asio> wsserver;
 
 class Socket
 {
@@ -67,4 +59,6 @@ class Socket
     map<string, function<void (const string& data)>> m_events;
 };
 
+}
+    using lib::Socket;
 }

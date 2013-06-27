@@ -1,19 +1,13 @@
 #pragma once
 
-#define _WEBSOCKETPP_CPP11_STL_
-#include <websocketpp/config/asio_no_tls.hpp>
-#include <websocketpp/server.hpp>
-
 #include <socket.io-serverpp/config.hpp>
 
 namespace SOCKETIO_SERVERPP_NAMESPACE
 {
-
-
-typedef websocketpp::server<websocketpp::config::asio> wsserver;
+namespace lib
+{
 
 // encoding text,json
-
 struct Message
 {
     bool isJson;
@@ -25,5 +19,9 @@ struct Message
     string endpoint;
     string data;
 };
+
+}
+
+using lib::Message;
 
 }

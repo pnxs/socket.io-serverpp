@@ -4,13 +4,10 @@
 #include <socket.io-serverpp/Server.hpp>
 #include <socket.io-serverpp/Socket.hpp>
 
-#include <boost/signals2.hpp>
-
 namespace SOCKETIO_SERVERPP_NAMESPACE
 {
-
-    using std::cout;
-    using std::endl;
+namespace lib
+{
 
 class Server;
 class Socket;
@@ -63,14 +60,14 @@ class SocketNamespace
     
     private:
 
-    void onSocketIoConnection(websocketpp::connection_hdl hdl)
+    void onSocketIoConnection(wspp::connection_hdl hdl)
     {
         auto socket = make_shared<Socket>(m_wsserver, m_namespace, hdl);
         //m_sockets[hdl] = socket;
         sig_Connection(*socket);
     }
 
-    void onSocketIoMessage(websocketpp::connection_hdl hdl, const Message& msg)
+    void onSocketIoMessage(wspp::connection_hdl hdl, const Message& msg)
     {
         cout << "SocketNamespace(" << m_namespace << ") msg: " << msg.data << endl;
         auto iter = m_sockets.find(hdl);
@@ -83,9 +80,10 @@ class SocketNamespace
     string m_namespace;
     wsserver& m_wsserver;
 
-    boost::signals2::signal<void (Socket&)> sig_Connection;
-    map<websocketpp::connection_hdl, shared_ptr<Socket>, std::owner_less<websocketpp::connection_hdl>> m_sockets;
+    signal<void (Socket&)> sig_Connection;
+    map<wspp::connection_hdl, shared_ptr<Socket>, std::owner_less<wspp::connection_hdl>> m_sockets;
 };
 
 }
-
+    using lib::SocketNamespace;
+}
