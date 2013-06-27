@@ -185,15 +185,15 @@ class Server
     {
     }
 
-    asio::io_service& m_io_service;
-    wsserver m_wsserver;
-    scgiserver m_scgiserver;
+    asio::io_service&   m_io_service;
+    wsserver            m_wsserver;
+    scgiserver          m_scgiserver;
     shared_ptr<SocketNamespace> m_sockets;
     map<string, shared_ptr<SocketNamespace>> m_socket_namespace;
-    boost::regex m_reSockIoMsg;
-    int m_heartBeat;
-    int m_reconnectTime;
-    vector<string> m_protocols;
+    boost::regex        m_reSockIoMsg;
+    int                 m_heartBeat;
+    int                 m_reconnectTime;
+    vector<string>      m_protocols;
 };
 
 }

@@ -53,9 +53,9 @@ class Socket
         }
     }
 
-    wsserver& m_wsserver;
-    const string&   m_namespace;
-    websocketpp::connection_hdl m_ws_hdl;
+    wsserver&               m_wsserver;
+    const string&           m_namespace;
+    wspp::connection_hdl    m_ws_hdl;
     map<string, function<void (const string& data)>> m_events;
 };
 
