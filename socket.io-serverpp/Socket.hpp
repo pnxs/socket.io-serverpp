@@ -14,7 +14,7 @@ class Socket
 {
     friend SocketNamespace;
     public:
-    Socket(wsserver& wsserver, const string& nsp, websocketpp::connection_hdl hdl)
+    Socket(wsserver& wsserver, const string& nsp, wspp::connection_hdl hdl)
     :m_wsserver(wsserver)
     ,m_namespace(nsp)
     ,m_ws_hdl(hdl)
@@ -35,7 +35,7 @@ class Socket
     void send(const string& data)
     {
         string pl = "3::" + m_namespace + ":" + data;
-        m_wsserver.send(m_ws_hdl, pl, websocketpp::frame::opcode::value::text);
+        m_wsserver.send(m_ws_hdl, pl, wspp::frame::opcode::value::text);
         cout << "Socket send: " << data << endl;
     }
 
