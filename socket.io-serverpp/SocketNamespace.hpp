@@ -63,7 +63,7 @@ class SocketNamespace
     void onSocketIoConnection(wspp::connection_hdl hdl)
     {
         auto socket = make_shared<Socket>(m_wsserver, m_namespace, hdl);
-        //m_sockets[hdl] = socket;
+        m_sockets[hdl] = socket;
         sig_Connection(*socket);
     }
 
