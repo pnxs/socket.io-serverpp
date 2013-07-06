@@ -80,7 +80,12 @@ class Server
             std::ostringstream os;
             os << "Status: 200 OK\r\n";
             os << "Content-Type: text/plain\r\n\r\n";
-            os << uuid + ":" << m_heartBeat << ":" << m_reconnectTime << ":";
+            os << uuid + ":";
+            if (m_heartBeat > 0)
+            {
+                os << m_heartBeat;
+            }
+            os << ":" << m_closeTime << ":";
             for (const auto& p : m_protocols)
             {
                 os << p << ",";
@@ -143,46 +148,44 @@ class Server
                 match[3],
                 match[4]
             };
+                        
+            auto socket_namespace = m_socket_namespace.find(message.endpoint);
+            if (socket_namespace == m_socket_namespace.end())
+            {
+                std::cout << "socketnamespace '" << message.endpoint << "' not found" << std::endl;
+                return;
+            }
 
             switch(payload[0])
             {
                 case '0': // Disconnect
                     break;
                 case '1': // Connect
-                    {
-                        // signal connect to matching namespace
-                        auto socket_namespace = m_socket_namespace.find(message.endpoint);
-                        if (socket_namespace != m_socket_namespace.end())
-                        {
-                            socket_namespace->second->onSocketIoConnection(hdl);
-                        }
-
-                        m_wsserver.send(hdl, payload, wspp::frame::opcode::value::text);
-                    }
+                    // signal connect to matching namespace
+                    socket_namespace->second->onSocketIoConnection(hdl);
+                    m_wsserver.send(hdl, payload, wspp::frame::opcode::value::text);
                     break;
                 case '4': // JsonMessage
-                        message.isJson = true;
+                    message.isJson = true;
+                    // falltrough
                 case '3': // Message
-                        {
-                            auto socket_namespace = m_socket_namespace.find(message.endpoint);
-                            if (socket_namespace != m_socket_namespace.end())
-                            {
-                                socket_namespace->second->onSocketIoMessage(hdl, message);
-                            }
-
-                            std::cout << "Message: " << payload << std::endl;
-                        }
+                    socket_namespace->second->onSocketIoMessage(hdl, message);
+                    break;
                 case '5': // Event
-                        
+                    socket_namespace->second->onSocketIoEvent(hdl, message);
                     break;
             }
         }
-
-        std::cout << msg->get_payload() << std::endl;
+        //std::cout << msg->get_payload() << std::endl;
     }
 
     void onWebsocketClose(wspp::connection_hdl hdl)
     {
+        for (auto sns : m_socket_namespace)
+        {
+            sns.second->onSocketIoDisconnect(hdl);
+        }
+
     }
 
     asio::io_service&   m_io_service;
@@ -191,8 +194,8 @@ class Server
     shared_ptr<SocketNamespace> m_sockets;
     map<string, shared_ptr<SocketNamespace>> m_socket_namespace;
     boost::regex        m_reSockIoMsg;
-    int                 m_heartBeat;
-    int                 m_reconnectTime;
+    int                 m_heartBeat = 30;
+    int                 m_closeTime = 30;
     vector<string>      m_protocols;
 };
 

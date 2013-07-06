@@ -2,6 +2,9 @@
 
 #include <socket.io-serverpp/config.hpp>
 #include <socket.io-serverpp/Message.hpp>
+#include <socket.io-serverpp/Event.hpp>
+
+#include <socket.io-serverpp/lib/rapidjson/document.h>
 
 namespace SOCKETIO_SERVERPP_NAMESPACE
 {
@@ -21,8 +24,9 @@ class Socket
     {
     }
 
-    void on(const std::string& event, function<void (const string& data)> cb)
+    void on(const std::string& event, function<void (const Event& data)> cb)
     {
+//        cout << "register event '" << event << "'" << this << endl;
         m_events[event] = cb;
     }
 
@@ -41,6 +45,8 @@ class Socket
 
     void emit(const string& name, const string& data)
     {
+        string pl = "5::" + m_namespace + ":{\"name\":\"" + name + "\",\"args\":[\""+data+"\"]}";
+        m_wsserver.send(m_ws_hdl, pl, wspp::frame::opcode::value::text);
         cout << "Socket emit: " << name << " data: " << data << endl;
     }
 
@@ -49,14 +55,25 @@ class Socket
         auto iter = m_events.find("message");
         if (iter != m_events.end())
         {
-            iter->second(msg.data);
+            iter->second({"message", msg.data});
+        }
+    }
+
+    void onEvent(const string& event, const rapidjson::Document& json)
+    {
+//        cout << "Socket check '" << event << "'" << this << endl;
+        auto iter = m_events.find(event);
+        if (iter != m_events.end())
+        {
+            iter->second({event, json});
+//            cout << "Socket event: " << event << " matched" << endl;
         }
     }
 
     wsserver&               m_wsserver;
     const string&           m_namespace;
     wspp::connection_hdl    m_ws_hdl;
-    map<string, function<void (const string& data)>> m_events;
+    map<string, function<void (const Event&)>> m_events;
 };
 
 }

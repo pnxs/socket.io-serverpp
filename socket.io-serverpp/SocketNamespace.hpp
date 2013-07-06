@@ -4,6 +4,8 @@
 #include <socket.io-serverpp/Server.hpp>
 #include <socket.io-serverpp/Socket.hpp>
 
+#include <socket.io-serverpp/lib/rapidjson/document.h>
+
 namespace SOCKETIO_SERVERPP_NAMESPACE
 {
 namespace lib
@@ -27,11 +29,13 @@ class SocketNamespace
         sig_Connection.connect(cb);
     }
 
+#if 0
     void on(const string& event, function<void (const string&)> cb)
     {
         // add cb to event-signal
         //m_events[event]; //.connect(cb);
     }
+#endif
 
     //list<Client> clients(const string& room) const;
     //void except(const SessionId& id);
@@ -74,6 +78,34 @@ class SocketNamespace
         if (iter != m_sockets.end())
         {
             iter->second->onMessage(msg);
+        }
+    }
+                    
+    void onSocketIoEvent(wspp::connection_hdl hdl, const Message& msg)
+    {
+        rapidjson::Document json;
+        json.Parse<0>(msg.data.c_str());
+
+        string name = json["name"].GetString();
+//        string args = json["args"].GetString();
+        string args;
+
+        cout << "SocketNamespace(" << m_namespace << ") event: " << name << " with args " << args << endl;
+
+        auto iter = m_sockets.find(hdl);
+        if (iter != m_sockets.end())
+        {
+            iter->second->onEvent(name, json);
+        }
+
+    }
+
+    void onSocketIoDisconnect(wspp::connection_hdl hdl)
+    {
+        auto iter = m_sockets.find(hdl);
+        if (iter != m_sockets.end())
+        {
+            m_sockets.erase(iter);
         }
     }
 
