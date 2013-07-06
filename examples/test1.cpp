@@ -20,7 +20,7 @@ int main()
     io.sockets().on("connection", [](socketio-serverpp::socket socket)
     {
         socket.emit('my event', 'some data');
-        socket.on('other event', [](const string& data)
+    0   socket.on('other event', [](const string& data)
         {
             cout << data << endl;
         });
@@ -28,13 +28,18 @@ int main()
 #endif
 
     auto chat = io.of("/chat");
-    chat->onConnection([&](socketio_serverpp::Socket socket)
+    chat->onConnection([&](socketio_serverpp::Socket& socket)
     {
+        socket.on("my event", [](const socketio_serverpp::Event& event) {
+            cout << "reicevd '" <<  event.name() << "' with " << event.data() << endl;
+        });
+
         cout << "a socket with namespace /chat connected" << endl;
 
         socket.emit("a message", "only socket will get");
         chat->emit("a message", "all in /chat will get");
     });
+
 
     io_service.run();
 }
