@@ -29,6 +29,11 @@ class SocketNamespace
         sig_Connection.connect(cb);
     }
 
+    void onDisconnection(function<void (Socket&)> cb)
+    {
+        sig_Disconnection.connect(cb);
+    }
+
 #if 0
     void on(const string& event, function<void (const string&)> cb)
     {
@@ -105,6 +110,7 @@ class SocketNamespace
         auto iter = m_sockets.find(hdl);
         if (iter != m_sockets.end())
         {
+            sig_Disconnection(*(iter->second));
             m_sockets.erase(iter);
         }
     }
@@ -113,6 +119,7 @@ class SocketNamespace
     wsserver& m_wsserver;
 
     signal<void (Socket&)> sig_Connection;
+    signal<void (Socket&)> sig_Disconnection;
     map<wspp::connection_hdl, shared_ptr<Socket>, std::owner_less<wspp::connection_hdl>> m_sockets;
 };
 
