@@ -70,6 +70,12 @@ class Socket
         }
     }
 
+    string uuid() const
+    {
+        auto connection = m_wsserver.get_con_from_hdl(m_ws_hdl);
+        return connection->get_resource().substr(23);
+    }
+
     wsserver&               m_wsserver;
     const string&           m_namespace;
     wspp::connection_hdl    m_ws_hdl;
