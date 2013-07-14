@@ -9,7 +9,7 @@ namespace lib
 
 namespace uuid
 {
-    string uuid1()
+    static string uuid1()
     {
         uuid_t uuid;
         char strId[38];
