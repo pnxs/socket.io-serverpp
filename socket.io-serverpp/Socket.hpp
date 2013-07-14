@@ -59,13 +59,13 @@ class Socket
         }
     }
 
-    void onEvent(const string& event, const rapidjson::Document& json)
+    void onEvent(const string& event, const rapidjson::Document& json, const string& rawJson)
     {
 //        cout << "Socket check '" << event << "'" << this << endl;
         auto iter = m_events.find(event);
         if (iter != m_events.end())
         {
-            iter->second({event, json});
+            iter->second({event, json, rawJson});
 //            cout << "Socket event: " << event << " matched" << endl;
         }
     }

@@ -95,7 +95,7 @@ class SocketNamespace
         auto iter = m_sockets.find(hdl);
         if (iter != m_sockets.end())
         {
-            iter->second->onEvent(name, json);
+            iter->second->onEvent(name, json, msg.data);
         }
 
     }

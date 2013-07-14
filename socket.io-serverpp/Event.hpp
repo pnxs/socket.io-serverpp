@@ -13,8 +13,8 @@ namespace lib
 class Event
 {
     public:
-    Event(const string& event, const rapidjson::Document& json)
-    :m_isJson(true), m_event(event), m_json(&json)
+    Event(const string& event, const rapidjson::Document& json, const string& rawJson)
+    :m_isJson(true), m_event(event), m_json(&json), m_stringdata(rawJson)
     {
     }
     
