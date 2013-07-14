@@ -106,6 +106,7 @@ class Server
 
         //m_websocketServer.send(hdl, "5::{name:'connect', args={}}", ws::frame::opcode::value::text);
         m_wsserver.send(hdl, "1::", wspp::frame::opcode::value::text);
+        
         //    m_websocketServer.set_timer(10*1000, bind(&SocketIoServer::sendHeartbeart, this, hdl));
         //    m_websocketServer.set_timer(1*1000, bind(&SocketIoServer::customEvent, this, hdl));
     }
@@ -121,14 +122,6 @@ class Server
      * 5:<id>:<ep>:<json event>
      * 6:::<id>
      *
-     * axe:
-     * msgtype := numeric
-     * fs := :
-     * msgid := numeric
-     * msgiduser := +
-     * endpoint := alphanum
-     * data := all
-     * socketiomsg := msgtype + fs + msgid* + msgiduser* + fs + endpoint* + fs* + data*
      * regex: "\d:\d*\+*:[^:]*:.*"
      */
 
