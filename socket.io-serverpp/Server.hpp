@@ -31,6 +31,8 @@ class Server
         m_protocols = {"websocket"};
 
         m_wsserver.init_asio(&io_service);
+        m_wsserver.set_access_channels(websocketpp::log::alevel::none);
+        m_wsserver.set_error_channels(websocketpp::log::elevel::warn);
         m_wsserver.set_message_handler(bind(&Server::onWebsocketMessage, this, _1, _2));
         m_wsserver.set_open_handler(bind(&Server::onWebsocketOpen, this, _1));
         m_wsserver.set_close_handler(bind(&Server::onWebsocketClose, this, _1));
@@ -73,7 +75,7 @@ class Server
     {
         string uri = req->header("REQUEST_URI");
         string uuid = uuid::uuid1();
-        std::cout << "Req: " << req->header("REQUEST_METHOD") << "  Uri: " << uri << std::endl;
+//        std::cout << "Req: " << req->header("REQUEST_METHOD") << "  Uri: " << uri << std::endl;
 
         if (uri.find("/socket.io/1/") == 0)
         {

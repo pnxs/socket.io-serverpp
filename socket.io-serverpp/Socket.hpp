@@ -40,14 +40,14 @@ class Socket
     {
         string pl = "3::" + m_namespace + ":" + data;
         m_wsserver.send(m_ws_hdl, pl, wspp::frame::opcode::value::text);
-        cout << "Socket send: " << data << endl;
+//        cout << "Socket send: " << data << endl;
     }
 
     void emit(const string& name, const string& data)
     {
         string pl = "5::" + m_namespace + ":{\"name\":\"" + name + "\",\"args\":[\""+data+"\"]}";
         m_wsserver.send(m_ws_hdl, pl, wspp::frame::opcode::value::text);
-        cout << "Socket emit: " << name << " data: " << data << endl;
+//        cout << "Socket emit: " << name << " data: " << data << endl;
     }
 
     void onMessage(const Message& msg)

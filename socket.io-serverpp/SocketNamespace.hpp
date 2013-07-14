@@ -41,7 +41,7 @@ class SocketNamespace
     //void except(const SessionId& id);
     void send(const string& data)
     {
-        cout << "SocketNamespace send: " << data << endl;
+//        cout << "SocketNamespace send: " << data << endl;
         for (const auto& i : m_sockets)
         {
             i.second->send(data);
@@ -50,7 +50,7 @@ class SocketNamespace
 
     void emit(const string& name, const string& data)
     {
-        cout << "SocketNamespace emit: " << name << " data: " << data << endl;
+//        cout << "SocketNamespace emit: " << name << " data: " << data << endl;
         for (const auto& i : m_sockets)
         {
             i.second->emit(name, data);
@@ -73,7 +73,7 @@ class SocketNamespace
 
     void onSocketIoMessage(wspp::connection_hdl hdl, const Message& msg)
     {
-        cout << "SocketNamespace(" << m_namespace << ") msg: " << msg.data << endl;
+//        cout << "SocketNamespace(" << m_namespace << ") msg: " << msg.data << endl;
         auto iter = m_sockets.find(hdl);
         if (iter != m_sockets.end())
         {
@@ -90,7 +90,7 @@ class SocketNamespace
 //        string args = json["args"].GetString();
         string args;
 
-        cout << "SocketNamespace(" << m_namespace << ") event: " << name << " with args " << args << endl;
+//        cout << "SocketNamespace(" << m_namespace << ") event: " << name << " with args " << args << endl;
 
         auto iter = m_sockets.find(hdl);
         if (iter != m_sockets.end())
